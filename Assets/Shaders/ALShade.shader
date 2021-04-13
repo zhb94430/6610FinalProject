@@ -1,10 +1,11 @@
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Unlit/Test"
+Shader "AreaLight/Shading"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+
     }
     SubShader
     {
@@ -14,6 +15,7 @@ Shader "Unlit/Test"
         Pass
         {
             CGPROGRAM
+
             // Set "vert" as the vertex shader function
             #pragma vertex vert
             // Set "frag" as the fragment shader function
@@ -24,6 +26,15 @@ Shader "Unlit/Test"
                 float4 vertex : POSITION; // gl_position
                 float2 uv : TEXCOORD0; // UV
             };
+
+            // Struct for area light
+            struct AreaLight
+            {
+                float3 Polygon[4];
+                float radiance;
+            };
+
+            uniform AreaLight areaLight1;
 
             // Vertex shader output, frag shader input
             struct v2f
@@ -44,14 +55,31 @@ Shader "Unlit/Test"
             }
 
             sampler2D _MainTex;
-
-            // fixed4 is a low percision vec4 float?
+            
             // SV_Target is a semantic signifier
             // See https://docs.unity3d.com/Manual/SL-ShaderSemantics.html
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
                 fixed4 color = tex2D(_MainTex, i.uv);
+
+                // Calculate irradiance of Area Light
+                
+                float sum = 0.0;
+                for (int i = 0; i < 4; i++)
+                {
+                    int j = (i + 1) % n;
+
+                    p_i = areaLight1.Polygon[i];
+                    p_j = areaLight1.Polygon[j];
+
+                    float inner1 = InnerProduct(p_i, p_j);
+                    float inner2 = InnerProduct(cross(p_i, p_j) / abs(cross(p_i, p_j)), float3(0.0, 0.0, 1.0));
+
+                    sum += acos(inner1) * inner2;
+                }
+
+                float irradiance = 1/2*pi * sum;
 
                 return color;
             }
