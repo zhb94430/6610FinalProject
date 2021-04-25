@@ -28,7 +28,7 @@ Shader "AreaLight/ALShade_SS"
         fixed4 SpecularColor;
         fixed4 AreaLightColor;
         float AreaLightIntensity;
-        float3 AreaLightPolygon_World[4];
+        float4 AreaLightPolygon_World[4];
 
         sampler2D MainTex;
         sampler2D InverseMTex;
@@ -36,6 +36,7 @@ Shader "AreaLight/ALShade_SS"
         struct Input
         {
             float2 uv_MainTex;
+            float3 viewDir;
         };
 
         
@@ -52,7 +53,7 @@ Shader "AreaLight/ALShade_SS"
             float3 Polygon_0[4];
             for (int i = 0; i < 4; i++)
             {
-                Polygon_0[i] = mul(inverseM, AreaLightPolygon_World[i]);
+                Polygon_0[i] = mul(inverseM, AreaLightPolygon_World[i].xyz);
             }
 
             // Clipping?
@@ -61,7 +62,7 @@ Shader "AreaLight/ALShade_SS"
             float3 fragToPolygon_0[4];
             for (int i = 0; i < 4; i++)
             {
-                fragToPolygon_0[i] = normalize(AreaLightPolygon_World[i]);
+                fragToPolygon_0[i] = normalize(AreaLightPolygon_World[i].xyz);
             }                
 
 
@@ -73,8 +74,8 @@ Shader "AreaLight/ALShade_SS"
             {
                 int j = (i + 1) % 4;
 
-                float3 p_i = AreaLightPolygon_World[i];
-                float3 p_j = AreaLightPolygon_World[j];
+                float3 p_i = AreaLightPolygon_World[i].xyz;
+                float3 p_j = AreaLightPolygon_World[j].xyz;
 
                 float cosTheta = dot(p_i, p_j);
                 float theta = acos(cosTheta);    
@@ -104,53 +105,60 @@ Shader "AreaLight/ALShade_SS"
 
         }
         
+        fixed4 LightingAreaLight(SurfaceOutputStandard s, 
+                        float3 lightDir, 
+                        half3 viewDir)
+        {
+            return fixed4(s.Albedo, 1.0);            
+        }
 
         // Area Light lighting function
-        half4 LightingAreaLight(SurfaceOutputStandard s, 
-                                half3 lightDir, 
-                                half3 viewDir)
-        {
-            float theta;
-            float2 inverseM_UV;
+        // fixed4 LightingAreaLight(SurfaceOutputStandard s, 
+        //                         float3 lightDir, 
+        //                         float3 viewDir)
+        // {
+        //     float theta;
+        //     float2 inverseM_UV;   
 
-            
+        //     s.Normal = normalize(s.Normal);
 
-            s.Normal = normalize(s.Normal);
+        //     theta = acos(dot(s.Normal, viewDir)); // might be -viewDir
+        //     inverseM_UV = float2(s.Smoothness, theta/(0.5*PI));
 
-            theta = acos(dot(s.Normal, viewDir)); // might be -viewDir
-            inverseM_UV = float2(s.Smoothness, theta/(0.5*PI));
+        //     float4 inverseM_Sample = tex2D(InverseMTex, inverseM_UV);
 
-            float4 inverseM_Sample = tex2D(InverseMTex, inverseM_UV);
+        //     float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.y),
+        //                                   float3(                0, inverseM_Sample.z,                 0),
+        //                                   float3(inverseM_Sample.w,                 0, inverseM_Sample.x));
 
-            float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.y),
-                                          float3(                0, inverseM_Sample.z,                 0),
-                                          float3(inverseM_Sample.w,                 0, inverseM_Sample.x));
-
-            // Calculate irradiance of Area Light by evaluating LTC
-            float3 irradiance = CalculateIrradiance(s.Normal, viewDir, inverseM);
-            irradiance *= inverseM_Sample.w;
+        //     // Calculate irradiance of Area Light by evaluating LTC
+        //     float3 irradiance = CalculateIrradiance(s.Normal, viewDir, inverseM);
+        //     irradiance *= inverseM_Sample.w;
 
 
-            float3x3 identityM = float3x3 (1,0,0,
-                                           0,1,0,
-                                           0,0,1);
+        //     float3x3 identityM = float3x3 (1,0,0,
+        //                                    0,1,0,
+        //                                    0,0,1);
 
-            float3 radiance = CalculateIrradiance(s.Normal, viewDir, identityM);
+        //     float3 radiance = CalculateIrradiance(s.Normal, viewDir, identityM);
 
-            float3 result = (irradiance * SpecularColor + radiance * DiffuseColor) * AreaLightColor;
+        //     float3 result = (irradiance * SpecularColor + radiance * DiffuseColor) * AreaLightColor;
 
-            half4 result_Half4 = half4(result.r, result.g, result.b, 1.0);
+        //     fixed4 result_fixed4 = fixed4(result.r, result.g, result.b, 1.0);
 
-            return result_Half4;
-        }
+        //     return result_fixed4;
+        // }
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (MainTex, IN.uv_MainTex);
-            o.Albedo = c.rgb;
+            o.Smoothness = 0.5;
+            // o.Albedo = c.rgb;
+            o.Albedo = IN.viewDir;
         }
         ENDCG
     }
-    FallBack "Diffuse"
+    // FallBack "Diffuse"
+    FallBack Off
 }
