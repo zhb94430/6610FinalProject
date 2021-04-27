@@ -45,9 +45,9 @@ public class ALObject : MonoBehaviour
         Shader.SetGlobalVectorArray("AreaLightPolygon_World", verticesToShader.ToArray());
 
         // Load the LTC textures
-        byte[] rawDDS = System.IO.File.ReadAllBytes("../Textures/ltc_mat.dds");
+        byte[] rawDDS = System.IO.File.ReadAllBytes("./Assets/Textures/ltc_mat.dds");
 
-        Texture2D LTC_mat = LoadTextureDXT(rawDDS, TextureFormat.DTX1);
+        Texture2D LTC_mat = LoadTextureDXT(rawDDS, TextureFormat.DXT1);
     }
 
     // Update is called once per frame

@@ -18,8 +18,6 @@ Shader "AreaLight/Shading"
         Pass
         {
             CGPROGRAM
-// Upgrade NOTE: excluded shader from DX11; has structs without semantics (struct v2f members normal_World,viewDir_World)
-#pragma exclude_renderers d3d11
 
             // Set "vert" as the vertex shader function
             #pragma vertex vert
