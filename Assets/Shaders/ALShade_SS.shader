@@ -105,57 +105,57 @@ Shader "AreaLight/ALShade_SS"
 
         }
         
-        fixed4 LightingAreaLight(SurfaceOutputStandard s, 
-                        float3 lightDir, 
-                        half3 viewDir)
-        {
-            return fixed4(s.Albedo, 1.0);            
-        }
+        // fixed4 LightingAreaLight(SurfaceOutputStandard s, 
+        //                 float3 lightDir, 
+        //                 float3 viewDir)
+        // {
+        //     return fixed4(viewDir, 1.0);            
+        // }
 
         // Area Light lighting function
-        // fixed4 LightingAreaLight(SurfaceOutputStandard s, 
-        //                         float3 lightDir, 
-        //                         float3 viewDir)
-        // {
-        //     float theta;
-        //     float2 inverseM_UV;   
+        fixed4 LightingAreaLight(SurfaceOutputStandard s, 
+                                float3 lightDir, 
+                                float3 viewDir)
+        {
+            float theta;
+            float2 inverseM_UV;   
 
-        //     s.Normal = normalize(s.Normal);
+            s.Normal = normalize(s.Normal);
 
-        //     theta = acos(dot(s.Normal, viewDir)); // might be -viewDir
-        //     inverseM_UV = float2(s.Smoothness, theta/(0.5*PI));
+            theta = acos(dot(s.Normal, viewDir)); // might be -viewDir
+            inverseM_UV = float2(s.Smoothness, theta/(0.5*PI));
 
-        //     float4 inverseM_Sample = tex2D(InverseMTex, inverseM_UV);
+            float4 inverseM_Sample = tex2D(InverseMTex, inverseM_UV);
 
-        //     float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.y),
-        //                                   float3(                0, inverseM_Sample.z,                 0),
-        //                                   float3(inverseM_Sample.w,                 0, inverseM_Sample.x));
+            float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.y),
+                                          float3(                0, inverseM_Sample.z,                 0),
+                                          float3(inverseM_Sample.w,                 0, inverseM_Sample.x));
 
-        //     // Calculate irradiance of Area Light by evaluating LTC
-        //     float3 irradiance = CalculateIrradiance(s.Normal, viewDir, inverseM);
-        //     irradiance *= inverseM_Sample.w;
+            // Calculate irradiance of Area Light by evaluating LTC
+            float3 irradiance = CalculateIrradiance(s.Normal, viewDir, inverseM);
+            irradiance *= inverseM_Sample.w;
 
 
-        //     float3x3 identityM = float3x3 (1,0,0,
-        //                                    0,1,0,
-        //                                    0,0,1);
+            float3x3 identityM = float3x3 (1,0,0,
+                                           0,1,0,
+                                           0,0,1);
 
-        //     float3 radiance = CalculateIrradiance(s.Normal, viewDir, identityM);
+            float3 radiance = CalculateIrradiance(s.Normal, viewDir, identityM);
 
-        //     float3 result = (irradiance * SpecularColor + radiance * DiffuseColor) * AreaLightColor;
+            float3 result = (irradiance * SpecularColor + radiance * DiffuseColor) * AreaLightColor;
 
-        //     fixed4 result_fixed4 = fixed4(result.r, result.g, result.b, 1.0);
+            fixed4 result_fixed4 = fixed4(result.r, result.g, result.b, 1.0);
 
-        //     return result_fixed4;
-        // }
+            return result_fixed4;
+        }
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (MainTex, IN.uv_MainTex);
             o.Smoothness = 0.5;
-            // o.Albedo = c.rgb;
-            o.Albedo = IN.viewDir;
+            o.Albedo = c.rgb;
+            // o.Albedo = IN.viewDir;
         }
         ENDCG
     }
