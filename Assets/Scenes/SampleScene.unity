@@ -216,17 +216,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdcf81bd56bdd42fc8797685d0c91401, type: 3}
+  m_Script: {fileID: 11500000, guid: c171a18840cbbe34da7a76525eb00e71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
-  zoomSpeed: 4
+  moveSpeed: 2
+  zoomSpeed: 2
   minX: -360
   maxX: 360
   minY: -45
   maxY: 45
-  sensX: 200
-  sensY: 200
+  sensX: 100
+  sensY: 100
 --- !u!1 &1335261276
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,11 +256,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1335261276}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c52387f5223604db0a432a6e3fd4f164, type: 3}
+  m_Script: {fileID: 11500000, guid: 0dab9a5f5a1fa6a439fecadec1d88474, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   AreaLightColor: {r: 1, g: 1, b: 1, a: 0}
   AreaLightIntensity: 1
+  targetObject: {fileID: 1798924536}
 --- !u!64 &1335261278
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -294,7 +295,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 12a1f72ec4390402e932b28295e6dc09, type: 2}
+  - {fileID: 2100000, guid: 578cdfeaac4a0004f9995c902ce459f7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -485,7 +486,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1118ada282e374c8291c04436505b4bb, type: 2}
+  - {fileID: 2100000, guid: a84ba7dc29aff1a41aa693e992690278, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -9,6 +9,8 @@ public class ALObject : MonoBehaviour
     public Color AreaLightColor;
     public float AreaLightIntensity = 1.0F;
 
+    public GameObject targetObject;
+
     // public Material 
 
     private Mesh currentALMesh;
@@ -47,7 +49,11 @@ public class ALObject : MonoBehaviour
         // Load the LTC textures
         byte[] rawDDS = System.IO.File.ReadAllBytes("./Assets/Textures/ltc_mat.dds");
 
-        Texture2D LTC_mat = LoadTextureDXT(rawDDS, TextureFormat.DXT1);
+        Texture2D LTC_mat = LoadTextureDXT(rawDDS, TextureFormat.RGBAFloat);
+
+        MeshRenderer targetMesh = targetObject.GetComponent<MeshRenderer>();
+
+        targetMesh.material.SetTexture("InverseMTex", LTC_mat);
     }
 
     // Update is called once per frame
@@ -58,8 +64,8 @@ public class ALObject : MonoBehaviour
 
     public static Texture2D LoadTextureDXT(byte[] ddsBytes, TextureFormat textureFormat)
      {
-         if (textureFormat != TextureFormat.DXT1 && textureFormat != TextureFormat.DXT5)
-             throw new Exception("Invalid TextureFormat. Only DXT1 and DXT5 formats are supported by this method.");
+        // if (textureFormat != TextureFormat.DXT1 && textureFormat != TextureFormat.DXT5)
+       //      throw new Exception("Invalid TextureFormat. Only DXT1 and DXT5 formats are supported by this method.");
      
          byte ddsSizeCheck = ddsBytes[4];
          if (ddsSizeCheck != 124)
