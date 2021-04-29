@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Test
-  m_Shader: {fileID: 4800000, guid: d985d63e7244ce44bb6fd82c52f68de9, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0986ad0dc469945918a7a7e4ecccb6cb, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - AmpTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - InverseMTex:
         m_Texture: {fileID: 2800000, guid: 6095709e8181e41cfb79ede183b8e3d2, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -81,7 +85,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - roughness: 0.595
+    - roughness: 0.422
     m_Colors:
     - AreaLightColor: {r: 1, g: 1, b: 1, a: 1}
     - DiffuseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}

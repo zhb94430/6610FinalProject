@@ -2,8 +2,8 @@ Shader "AreaLight/LightSurface"
 {
     Properties
     {
-        // AreaLightColor("Area Light Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        // AreaLightIntensity("Area Light Intensity", Float) = 1.0
+         AreaLightColor("Area Light Color", Color) = (1.0, 1.0, 1.0, 1.0)
+         AreaLightIntensity("Area Light Intensity", Float) = 1.0
     }
     SubShader
     {
