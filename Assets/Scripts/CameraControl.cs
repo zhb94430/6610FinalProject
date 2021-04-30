@@ -24,11 +24,15 @@ public class CameraControl : MonoBehaviour
     float rotationY = 0.0f;
     float rotationX = 0.0f;
 
+    // Ray Marching
+    private Camera currentCamera;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        currentCamera = Camera.main;
+
+        currentCamera.depthTextureMode = DepthTextureMode.Depth;
     }
 
     // Update is called once per frame
@@ -61,5 +65,10 @@ public class CameraControl : MonoBehaviour
             rotationY = Mathf.Clamp(rotationY, minY, maxY);
             transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
         }
+
+        Matrix4x4 viewProjM = currentCamera.projectionMatrix * currentCamera.worldToCameraMatrix;
+
+        Shader.SetGlobalVector("cameraPos", transform.position);
+        Shader.SetGlobalMatrix("inverseViewProjM", viewProjM.inverse);
     }
 }

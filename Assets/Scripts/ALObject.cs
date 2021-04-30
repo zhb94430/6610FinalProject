@@ -9,6 +9,9 @@ public class ALObject : MonoBehaviour
     public Color AreaLightColor;
     public float AreaLightIntensity = 1.0F;
 
+    // Shader properties
+    public float roughness = 0.4F;
+
     public List<GameObject> targetObjects;
 
     // public Material 
@@ -52,7 +55,7 @@ public class ALObject : MonoBehaviour
     public void SendToShader()
     {
         verticesToShader = new List<Vector4>();
-        
+
         foreach (Vector3 vertex in currentALMesh.vertices)
         {
             Vector3 vertex_World = transform.TransformPoint(vertex);
@@ -70,6 +73,7 @@ public class ALObject : MonoBehaviour
         // Set shader properties
         Shader.SetGlobalColor("AreaLightColor", AreaLightColor);
         Shader.SetGlobalFloat("AreaLightIntensity", AreaLightIntensity);
+        Shader.SetGlobalFloat("roughness", roughness);
         Shader.SetGlobalVectorArray("AreaLightPolygon_World", verticesToShader.ToArray());
     }
 
