@@ -34,6 +34,9 @@ public class ALObject : MonoBehaviour
         byte[] rawDDS_mat = System.IO.File.ReadAllBytes("./Assets/Textures/ltc_mat.dds");
         byte[] rawDDS_amp = System.IO.File.ReadAllBytes("./Assets/Textures/ltc_amp.dds");
 
+        // byte[] rawDDS_mat = System.IO.File.ReadAllBytes("./ltc_mat.dds");
+        // byte[] rawDDS_amp = System.IO.File.ReadAllBytes("./ltc_amp.dds");
+
         Texture2D LTC_mat = LoadTextureDXT(rawDDS_mat, TextureFormat.RGBAFloat);
         Texture2D LTC_amp = LoadTextureDXT(rawDDS_amp, TextureFormat.RGFloat);
 

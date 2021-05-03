@@ -82,14 +82,16 @@ Shader "AreaLight/Shading"
             // Integrate one edge of the polygon
             float Integrate(float3 p1, float3 p2)
             {
-                float cosTheta = dot(p1, p2);
-                float theta = acos(cosTheta);    
-                float result = cross(p1, p2).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
+                float theta = acos(dot(p1, p2));
+
+                float result = 1.0;
+                if (theta > 0.001) result = theta/sin(theta);
+                result = cross(p1, p2).z * result;
 
                 return result;
             }
 
-            int isVisible(float3 fragToPolygon_0[5])
+            int isVisible(float3 fragToPolygon_0[4])
             {
                 for (int i = 0; i < 5; i++)
                 {
@@ -106,19 +108,17 @@ Shader "AreaLight/Shading"
                                        float3x3 inverseM)
             {
                 // Orthonormal basis around N
-                float3 T1;
-                float3 T2;
+                float3 axis1;
+                float3 axis2;
 
-                T1 = normalize(cameraDirection - normal*dot(cameraDirection,normal));
-                T2 = normalize(cross(normal, T1));
+                axis1 = normalize(cameraDirection - normal*dot(cameraDirection,normal));
+                axis2 = normalize(cross(normal, axis1));
 
-                // inverseM = mul(inverseM, transpose(float3x3(T1, T2, normal)));
-                inverseM = mul(inverseM, float3x3(T1, T2, normal));
-
-                // Clipping?
+                // inverseM = mul(inverseM, transpose(float3x3(axis1, axis2, normal)));
+                inverseM = mul(inverseM, float3x3(axis1, axis2, normal));
 
                 // Calculate the directions from current frag to P_0
-                float3 fragToPolygon_0[5];
+                float3 fragToPolygon_0[4];
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -126,24 +126,15 @@ Shader "AreaLight/Shading"
                     fragToPolygon_0[i] = mul(inverseM, fragToPolygon);
                 }                
 
-                fragToPolygon_0[4] = float3(0,0,0);
-
-                // int n;
-                // ClipQuadToHorizon(fragToPolygon_0, n);
-
                 if (isVisible(fragToPolygon_0) == 0) return float3(0,0,0);
-                // if (n == 0) return float3(0,0,0);
 
-                fragToPolygon_0[0] = normalize(fragToPolygon_0[0]);
-                fragToPolygon_0[1] = normalize(fragToPolygon_0[1]);
-                fragToPolygon_0[2] = normalize(fragToPolygon_0[2]);
-                fragToPolygon_0[3] = normalize(fragToPolygon_0[3]);
-                fragToPolygon_0[4] = normalize(fragToPolygon_0[4]);
+                for (int i = 0; i < 4; i++)
+                {
+                    fragToPolygon_0[i] = normalize(fragToPolygon_0[i]);
+                }          
 
                 // Integrate the polygon 
                 
-                // Translate the author's code
-                // integrate
                 float sum = 0.0;
 
                 sum += Integrate(fragToPolygon_0[0], fragToPolygon_0[1]);
@@ -151,27 +142,11 @@ Shader "AreaLight/Shading"
                 sum += Integrate(fragToPolygon_0[2], fragToPolygon_0[3]);                
                 sum += Integrate(fragToPolygon_0[3], fragToPolygon_0[0]);
 
-                // My understanding:
-                // float sum = 0.0;
-                // for (int i = 0; i < 4; i++)
-                // {
-                //     int j = (i + 1) % n;
-
-                //     float3 p_i = AreaLightPolygon_World[i];
-                //     float3 p_j = AreaLightPolygon_World[j];
-
-                //     float inner1 = InnerProduct(p_i, p_j);
-                //     float inner2 = InnerProduct(cross(p_i, p_j) / abs(cross(p_i, p_j)), float3(0.0, 0.0, 1.0));
-
-                //     sum += acos(inner1) * inner2;
-                // }
-
                 sum = max(0.0, sum);
 
                 float3 result = float3(sum, sum, sum);
 
                 return result;
-
             }
 
 
