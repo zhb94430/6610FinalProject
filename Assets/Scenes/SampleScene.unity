@@ -173,8 +173,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
+  near clip plane: 0.1
+  far clip plane: 50
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -259,8 +259,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c52387f5223604db0a432a6e3fd4f164, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AreaLightColor: {r: 0.937292, g: 0.9622642, b: 0, a: 0}
+  AreaLightColor: {r: 1, g: 1, b: 1, a: 0}
   AreaLightIntensity: 10
+  roughness: 0.4
   targetObjects:
   - {fileID: 1798924536}
   - {fileID: 1557880844}
@@ -334,13 +335,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1335261276}
-  m_LocalRotation: {x: -0.2675727, y: -0.2818844, z: -0.06196983, w: 0.9192963}
-  m_LocalPosition: {x: 0.481, y: 0.517, z: 0.19}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.966, y: 5.98, z: 0.119}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: -31.796, y: -34.803, z: 2.489}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1557880844
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,7 +432,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1557880844}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.01, y: 0, z: -0.17}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_Children: []
   m_Father: {fileID: 0}
@@ -526,7 +527,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1798924536}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.73, y: 0.464, z: 0.012}
+  m_LocalPosition: {x: 2.98, y: 0.464, z: -1.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

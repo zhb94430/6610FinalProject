@@ -74,8 +74,8 @@ Shader "AreaLight/Shading"
             //     [0 c 0]
             //     [d 0 1]
             // a b c d are stored and accessed by roughness and theta
-            sampler2D InverseMTex; 
-            sampler2D AmpTex; 
+            sampler2D_float InverseMTex; 
+            sampler2D_float AmpTex; 
 
 
             // Helper functions
@@ -84,9 +84,19 @@ Shader "AreaLight/Shading"
             {
                 float cosTheta = dot(p1, p2);
                 float theta = acos(cosTheta);    
-                float result = abs(cross(p1, p2).z) * ((theta > 0.001) ? theta/sin(theta) : 1.0);
+                float result = cross(p1, p2).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
 
                 return result;
+            }
+
+            int isVisible(float3 fragToPolygon_0[5])
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    if (fragToPolygon_0[i].z > 0) return 1;
+                }     
+
+                return 0;
             }
             
             // Compute the irradiance by integrating the LTC
@@ -100,44 +110,47 @@ Shader "AreaLight/Shading"
                 float3 T2;
 
                 T1 = normalize(cameraDirection - normal*dot(cameraDirection,normal));
-                T2 = cross(normal, T1);
+                T2 = normalize(cross(normal, T1));
 
-                inverseM = mul(inverseM, transpose(float3x3(T1, T2, normal)));
+                // inverseM = mul(inverseM, transpose(float3x3(T1, T2, normal)));
+                inverseM = mul(inverseM, float3x3(T1, T2, normal));
 
                 // Clipping?
 
                 // Calculate the directions from current frag to P_0
-                float3 fragToPolygon_0[4];
+                float3 fragToPolygon_0[5];
+
                 for (int i = 0; i < 4; i++)
                 {
-                    float3 temp = AreaLightPolygon_World[i] - position;
-                    temp = mul(inverseM, temp);
-
-                    fragToPolygon_0[i] = normalize(temp);
+                    float3 fragToPolygon = AreaLightPolygon_World[i] - position;
+                    fragToPolygon_0[i] = mul(inverseM, fragToPolygon);
                 }                
 
+                fragToPolygon_0[4] = float3(0,0,0);
+
+                // int n;
+                // ClipQuadToHorizon(fragToPolygon_0, n);
+
+                if (isVisible(fragToPolygon_0) == 0) return float3(0,0,0);
+                // if (n == 0) return float3(0,0,0);
+
+                fragToPolygon_0[0] = normalize(fragToPolygon_0[0]);
+                fragToPolygon_0[1] = normalize(fragToPolygon_0[1]);
+                fragToPolygon_0[2] = normalize(fragToPolygon_0[2]);
+                fragToPolygon_0[3] = normalize(fragToPolygon_0[3]);
+                fragToPolygon_0[4] = normalize(fragToPolygon_0[4]);
 
                 // Integrate the polygon 
                 
                 // Translate the author's code
+                // integrate
                 float sum = 0.0;
-                // for (int i = 0; i < 4; i++)
-                // {
-                //     int j = (i + 1) % 4;
 
-                //     float3 p_i = fragToPolygon_0[i];
-                //     float3 p_j = fragToPolygon_0[j];
-
-                //     float cosTheta = dot(p_i, p_j);
-                //     float theta = acos(cosTheta);    
-                //     sum += cross(p_i, p_j).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
-                // }
-                
                 sum += Integrate(fragToPolygon_0[0], fragToPolygon_0[1]);
                 sum += Integrate(fragToPolygon_0[1], fragToPolygon_0[2]);
-                sum += Integrate(fragToPolygon_0[2], fragToPolygon_0[3]);
+                sum += Integrate(fragToPolygon_0[2], fragToPolygon_0[3]);                
                 sum += Integrate(fragToPolygon_0[3], fragToPolygon_0[0]);
-                
+
                 // My understanding:
                 // float sum = 0.0;
                 // for (int i = 0; i < 4; i++)
@@ -196,22 +209,11 @@ Shader "AreaLight/Shading"
                 float theta;
                 float2 inverseM_UV; // UV value for accessing inverseMParam
 
-
-                // Compute Frag World Space
-                // float4 ndc = float4( (i.ssUV.x - 0.5) * 2.0, 
-                //                      (i.ssUV.y - 0.5) * 2.0,
-                //                      i.ssUV.z,
-                //                      1.0);
-                // float4 clip = mul(inverseViewProjM, ndc);
-                // float3 iHopeThisIsCorrect = (clip/clip.w).xyz;
-
-                // return fixed4(iHopeThisIsCorrect, 1.0);
-
                 float3 viewDir_World = normalize(UnityWorldSpaceViewDir(i.vertex_World));
 
                 theta = acos(dot(i.normal_World, viewDir_World));
                 inverseM_UV = float2(roughness, theta/UNITY_HALF_PI);
-                
+
                 // Some constant from the author
                 float LUT_SIZE  = 64.0;
                 float LUT_SCALE = (LUT_SIZE - 1.0)/LUT_SIZE;
@@ -222,35 +224,36 @@ Shader "AreaLight/Shading"
                 float4 inverseM_Sample = tex2D(InverseMTex, inverseM_UV);
                 float4 amp_Sample = tex2D(AmpTex, inverseM_UV);
                 
-                // return fixed4(amp_Sample);                
+                inverseM_Sample.b = 1.0;
 
-                float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.y),
-                                              float3(                0, inverseM_Sample.z,                 0),
-                                              float3(inverseM_Sample.w,                 0, inverseM_Sample.x));
+                // return fixed4(amp_Sample);    
 
-                // float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.w),
+                // return fixed4(inverseM_Sample);            
+
+                // float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.y),
                 //                               float3(                0, inverseM_Sample.z,                 0),
-                //                               float3(inverseM_Sample.y,                 0, inverseM_Sample.x));
+                //                               float3(inverseM_Sample.w,                 0, inverseM_Sample.x));
+
+                float3x3 inverseM = float3x3( float3(                1,                 0, inverseM_Sample.w),
+                                              float3(                0, inverseM_Sample.z,                 0),
+                                              float3(inverseM_Sample.y,                 0, inverseM_Sample.x));
 
                 // // Calculate irradiance of Area Light by evaluating LTC
                 float3 irradiance = CalculateIrradiance(i.vertex_World, i.normal_World, viewDir_World, inverseM);
-                irradiance *= amp_Sample.w;                
+                irradiance *= amp_Sample.w;  
+                
+                // float3 irradiance = float3(0,0,0);              
 
                 // return fixed4(irradiance, 1.0);
 
-                float3x3 identityM = float3x3 (1,0,0,
-                                               0,1,0,
-                                               0,0,1);
+                float3x3 identityM = float3x3 (float3(1,0,0),
+                                               float3(0,1,0),
+                                               float3(0,0,1));
                 float3 radiance = CalculateIrradiance(i.vertex_World, i.normal_World, viewDir_World, identityM);
 
-                float3 result = (irradiance * SpecularColor + radiance * DiffuseColor) * AreaLightColor * AreaLightIntensity;
-                fixed4 result_fixed4 = fixed4(result, 1.0) * UNITY_INV_TWO_PI;
-                
-                // float irradiance = UNITY_INV_TWO_PI * sum;
+                float3 result = (irradiance * SpecularColor + radiance * DiffuseColor) * AreaLightColor * AreaLightIntensity * UNITY_INV_TWO_PI;
 
-                // return fixed4(radiance, 1.0);
-
-                return result_fixed4;
+                return fixed4(result, 1.0);
 
                 // return fixed4(normalize(AreaLightPolygon_World[1]));
             }
